@@ -290,7 +290,7 @@ class Dataset(object):
         if you encounter images not in your dataset.
         """
         return ""
-
+        
     def prepare(self, class_map=None):
         """Prepares the Dataset class for use.
 
@@ -308,6 +308,8 @@ class Dataset(object):
         self.class_names = [clean_name(c["name"]) for c in self.class_info]
         self.num_images = len(self.image_info)
         self._image_ids = np.arange(self.num_images)
+        
+        print(f'PREPARE prints : \nnumclasses{self.num_classes}\nclassids\n{self.class_ids}\nclassnames\n{self.class_names}\nnumimages\n{self.num_images}\nimageids\n{self.image_ids}')
 
         # Mapping from source class and image IDs to internal IDs
         self.class_from_source_map = {"{}.{}".format(info['source'], info['id']): id
