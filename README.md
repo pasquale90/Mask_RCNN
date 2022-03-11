@@ -1,3 +1,20 @@
+# CERTH:Instructions
+$ cd root
+$ bash install_dependencies.sh
+
+
+## check official [maskrcnn repo](https://github.com/matterport/Mask_RCNN)
+- pay attention to the original instructions for understanding the general concept of the whole process (10-15 minutes max)
+
+## for training
+$ conda activate mask
+$ jupyter-notebook
+- open samples/insects/train_insects[ballon].ipynb
+- run one by one cells for training with maskRcnn
+
+
+
+
 # Mask R-CNN for Object Detection and Segmentation
 
 This is an implementation of [Mask R-CNN](https://arxiv.org/abs/1703.06870) on Python 3, Keras, and TensorFlow. The model generates bounding boxes and segmentation masks for each instance of an object in the image. It's based on Feature Pyramid Network (FPN) and a ResNet101 backbone.
