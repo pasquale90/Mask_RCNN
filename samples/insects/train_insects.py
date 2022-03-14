@@ -9,7 +9,7 @@ import cv2
 #nadir="/data/CoRoSect/10.code/maskRCNN/Mask_RCNN_matterport/mask_rcnn/datasets/Nasekomo_insects"
 #nadir="../../mask_rcnn/datasets/Nasekomo_insects"
 #nadir="/home/melissap/Desktop/CoRoSect/10.code/maskRCNN/mask_rcnn/datasets/Nasekomo_insects"
-nadir="../../mask_rcnn/datasets/Nasekomo_insects"
+nadir="../../datasets/Nasekomo_insects"
 
 annotation_file=os.path.join(nadir,"phase1_Nasekomo_3609.txt")
 annotation_folder=annotation_file.split(".txt")[0]
@@ -400,7 +400,7 @@ if __name__ == '__main__':
                         metavar="<command>",
                         help="'train' or 'splash'")
     parser.add_argument('--dataset', required=False,
-                        metavar="/path/to/balloon/dataset/",
+                        metavar="/path/to/insects/dataset/",
                         help='Directory of the Balloon dataset')
     parser.add_argument('--weights', required=True,
                         metavar="/path/to/weights.h5",
