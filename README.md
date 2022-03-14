@@ -2,18 +2,20 @@
 $ cd root
 $ bash install_dependencies.sh
 
+## Setup a conda env for installing dependencies
+$ cd setup_from_scratch
+$ bash install_dependencies_from_scratch.sh
 
-## check official [maskrcnn repo](https://github.com/matterport/Mask_RCNN)
+## practice with the material provided by the [official maskrcnn repo](https://github.com/pasquale90/Mask_RCNN#mask-r-cnn-for-object-detection-and-segmentation)
 - pay attention to the original instructions for understanding the general concept of the whole process (10-15 minutes max)
+- run [demo.ipynb and train_shapes.ipynb](https://github.com/pasquale90/Mask_RCNN#getting-started)
 
-## for training
-$ conda activate mask
-$ jupyter-notebook
-- open samples/insects/train_insects[ballon].ipynb
-- run one by one cells for training with maskRcnn
-
+## for training using current config
+$ cd ROOT (simply put, the starting dir of the repository)
+$ bash samples/insects/run.sh
 
 
+# ----------------------------------------------------------- official read me ---------------------------------------------------------------------------------
 
 # Mask R-CNN for Object Detection and Segmentation
 
