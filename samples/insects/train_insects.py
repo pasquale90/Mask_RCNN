@@ -6,35 +6,10 @@ import numpy as np
 import skimage.draw
 import cv2
 
-#nadir="/data/CoRoSect/10.code/maskRCNN/Mask_RCNN_matterport/mask_rcnn/datasets/Nasekomo_insects"
-#nadir="../../mask_rcnn/datasets/Nasekomo_insects"
-#nadir="/home/melissap/Desktop/CoRoSect/10.code/maskRCNN/mask_rcnn/datasets/Nasekomo_insects"
-nadir="../../mask_rcnn/datasets/Nasekomo_insects"
-
-annotation_file=os.path.join(nadir,"phase1_Nasekomo_3609.txt")
-annotation_folder=annotation_file.split(".txt")[0]
-
 # Root directory of the project
-ROOT_DIR = os.path.abspath("../../")
-
+ROOT_DIR = os.path.abspath(os.getcwd())
 # Import Mask RCNN
 sys.path.append(ROOT_DIR)  # To find local version of the library
-
-
-''' replace config and utils with new files'''
-'''
-from mrcnn.config import Config
-from mrcnn import model as modellib, utils
-'''
-sys.path.append(os.path.join(ROOT_DIR,"mrcnn")) 
-print(sys.path)
-from mrcnn.insects_config import Config
-from mrcnn import insects_utils as utils
-
-from mrcnn import model as modellib
-
-
-
 
 # Path to trained weights file
 COCO_WEIGHTS_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
@@ -43,9 +18,26 @@ COCO_WEIGHTS_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
 # through the command line argument --logs
 DEFAULT_LOGS_DIR = os.path.join(ROOT_DIR, "logs")
 
-############################################################
-#  Configurations
-############################################################
+
+''' replace config and utils with new files'''
+'''
+from mrcnn.config import Config
+from mrcnn import model as modellib, utils
+'''
+sys.path.append(os.path.join(ROOT_DIR,"mrcnn"))
+print(sys.path)
+from mrcnn.insects_config import Config
+from mrcnn import insects_utils as utils
+
+from mrcnn import model as modellib
+
+# Path to trained weights file
+COCO_WEIGHTS_PATH = os.path.join(ROOT_DIR, "mask_rcnn_coco.h5")
+
+# Directory to save logs and model checkpoints, if not provided
+# through the command line argument --logs
+DEFAULT_LOGS_DIR = os.path.join(ROOT_DIR, "logs")
+
 ############################################################
 #  Configurations
 ############################################################
@@ -94,7 +86,7 @@ def create_path(path):
         print("folder '{}' created ".format(path))
     except FileExistsError:
         print("folder {} already exists".format(path))
-        
+      
 def define_class(sf):
     sf=int(sf)
     if (sf<=4):
@@ -116,7 +108,7 @@ def get_image_dim(impath):
     w,h=im.shape[1],im.shape[0]
     return w,h
     
-def parse_IT_annotation_file(filename):
+def parse_IT_annotation_file(annotation_folder,filename):
     #flines=[]
     with open(filename) as file:
         lines = file.readlines()
@@ -145,7 +137,7 @@ def parse_IT_annotation_file(filename):
             #for lines in data:
             f.write('\n')
             f.write(new_line)
-
+    
 def im_is_in_split(split,img):
     #images are named as : 1_010001 up to 1_360001 - 1_[01]0001 the first 30 will be used for training
     split_id=int(img.split("_")[1][:2])
@@ -192,13 +184,6 @@ def parse_polygons_from_annotation_file(annotation_filepath):
     return polygons
 
 
-#at First, parse the ImageTagger annotation file
-if (os.path.isdir(annotation_folder)):
-    print(f'annotation_folder {annotation_folder} exists')
-else:
-    create_path(annotation_folder)
-    print(f'annotation_folder : {annotation_folder} does not exist. \nParsing of annotation file : {annotation_file}')
-    parse_IT_annotation_file(annotation_file)
 
 
 ############################################################
@@ -207,7 +192,7 @@ else:
 
 class InsectsDataset(utils.Dataset):
 
-    def load_subset(self, nadir, subset):
+    def load_subset(self, datadir, annotation_folder, subset):
         """Load a subset of the Balloon dataset.
         dataset_dir: Root directory of the dataset.
         subset: Subset to load: train or val
@@ -222,8 +207,8 @@ class InsectsDataset(utils.Dataset):
         self.add_class("insects",1,"insects")
         
         # Add images
-        for sf in os.listdir(nadir):
-            currf=os.path.join(nadir,sf,'trainvalid')
+        for sf in os.listdir(datadir):
+            currf=os.path.join(datadir,sf,'trainvalid')
             #print(sf)
             if (os.path.isdir(currf)):
                 insect_class,class_id=define_class(sf)
@@ -294,16 +279,16 @@ class InsectsDataset(utils.Dataset):
             super(self.__class__, self).image_reference(image_id)
 
 
-def train(model):
+def train(model,datadir,annotation_folder):
     """Train the model."""
     # Training dataset.
     dataset_train = InsectsDataset()
-    dataset_train.load_subset(nadir, "train")
+    dataset_train.load_subset(datadir,annotation_folder,"train")
     dataset_train.prepare()
 
     # Validation dataset
     dataset_val = InsectsDataset()
-    dataset_val.load_subset(nadir, "valid")
+    dataset_val.load_subset(datadir,annotation_folder,"valid")
     dataset_val.prepare()
     
     
@@ -402,6 +387,9 @@ if __name__ == '__main__':
     parser.add_argument('--dataset', required=False,
                         metavar="/path/to/balloon/dataset/",
                         help='Directory of the Balloon dataset')
+    parser.add_argument('--ImaggeTagger_file', required=False,
+                        metavar="i.e. Annotations_2512.txt located within datasets/dataset/",
+                        help='Filename of the ImaggeTagger txt')
     parser.add_argument('--weights', required=True,
                         metavar="/path/to/weights.h5",
                         help="Path to weights .h5 file or 'coco'")
@@ -416,17 +404,19 @@ if __name__ == '__main__':
                         metavar="path or URL to video",
                         help='Video to apply the color splash effect on')
     args = parser.parse_args()
-
+    
     # Validate arguments
     if args.command == "train":
         assert args.dataset, "Argument --dataset is required for training"
     elif args.command == "splash":
         assert args.image or args.video,\
                "Provide --image or --video to apply color splash"
-
+    
+    print('pwd:',os.getcwd())    
     print("Weights: ", args.weights)
     print("Dataset: ", args.dataset)
     print("Logs: ", args.logs)
+    
 
     # Configurations
     if args.command == "train":
@@ -439,6 +429,19 @@ if __name__ == '__main__':
             IMAGES_PER_GPU = 1
         config = InferenceConfig()
     config.display()
+
+
+    #data
+    if args.command == "train":
+        annotation_file=os.path.join(ROOT_DIR,args.dataset,args.ImaggeTagger_file)
+        annotation_folder=annotation_file.split(".txt")[0]
+        #at First, parse the ImageTagger annotation file
+        if (os.path.isdir(annotation_folder)):
+            print(f'annotation_folder {annotation_folder} exists')
+        else:
+            create_path(annotation_folder)
+            print(f'annotation_folder : {annotation_folder} does not exist. \nParsing of annotation file : {annotation_file}')
+            parse_IT_annotation_file(annotation_folder,annotation_file)
 
     # Create model
     if args.command == "train":
@@ -461,7 +464,7 @@ if __name__ == '__main__':
         # Start from ImageNet trained weights
         weights_path = model.get_imagenet_weights()
     else:
-        weights_path = args.weights
+        weights_path = os.path.join(ROOT_DIR,args.weights)
 
     # Load weights
     print("Loading weights ", weights_path)
@@ -476,7 +479,7 @@ if __name__ == '__main__':
 
     # Train or evaluate
     if args.command == "train":
-        train(model)
+        train(model,args.dataset,annotation_folder)
     elif args.command == "splash":
         detect_and_color_splash(model, image_path=args.image,
                                 video_path=args.video)

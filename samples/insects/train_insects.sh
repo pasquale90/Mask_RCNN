@@ -4,4 +4,7 @@
 source /home/melissap/miniconda3/etc/profile.d/conda.sh
 conda activate mask
 
-python3 train_insects.py train --dataset=datasets/Nasekomo_insects --weights=mask_rcnn_balloon.h5
+python3 samples/insects/train_insects.py $1 --dataset=$2 --ImaggeTagger_file=$3 --weights=$4
+
+
+
