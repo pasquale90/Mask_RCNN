@@ -6,7 +6,11 @@ import numpy as np
 import skimage.draw
 import cv2
 
-nadir="/data/CoRoSect/10.code/maskRCNN/Mask_RCNN_matterport/mask_rcnn/datasets/Nasekomo_insects"
+#nadir="/data/CoRoSect/10.code/maskRCNN/Mask_RCNN_matterport/mask_rcnn/datasets/Nasekomo_insects"
+#nadir="../../mask_rcnn/datasets/Nasekomo_insects"
+#nadir="/home/melissap/Desktop/CoRoSect/10.code/maskRCNN/mask_rcnn/datasets/Nasekomo_insects"
+nadir="../../mask_rcnn/datasets/Nasekomo_insects"
+
 annotation_file=os.path.join(nadir,"phase1_Nasekomo_3609.txt")
 annotation_folder=annotation_file.split(".txt")[0]
 
@@ -176,11 +180,11 @@ def parse_polygons_from_annotation_file(annotation_filepath):
                 for c,xys in enumerate(line):
                     #print(f'xys[{c}] = {xys}')
                     if(c%2):
-                        ys.append(int(xys))
-                        #print("y",c,"=",annot)
+                        ys.append(int(xys)-1)
+                        #print("y",c,"=",int(xys))
                     elif (c%2==0):
-                        xs.append(int(xys))
-                    #print("x",c,"=",annot)
+                        xs.append(int(xys)-1)
+                        #print("x",c,"=",int(xys))
             #except ValueError:
             #    continue
             dict_annotation={"name":"polygon","all_points_x":xs,"all_points_y":ys}
