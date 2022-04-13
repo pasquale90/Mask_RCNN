@@ -140,15 +140,20 @@ def parse_IT_annotation_file(annotation_folder,filename):
     
 def im_is_in_split(split,img):
     #images are named as : 1_010001 up to 1_360001 - 1_[01]0001 the first 30 will be used for training
-    split_id=int(img.split("_")[1][:2])
-
+    #split_id=int(img.split("_")[1][:2])
+    split_id=int(img.split("_")[3].split('.')[0])
+    
     #print(f'split_id {split_id}')
-    if split_id<30:
+
+    split_thress=25
+
+
+    if split_id<split_thress:
         if split=="train":
             return True
         elif split=="valid":
             return False
-    elif split_id>=30:
+    elif split_id>=split_thress:
         if split=="train":
             return False
         elif split=="valid":
@@ -225,9 +230,10 @@ class InsectsDataset(utils.Dataset):
             
                         #get mask_annotations
                         try:
-                            annotation_filepath=os.path.join(annotation_folder,im.split(".jpg")[0]+'.txt')
+                            annotation_filepath=os.path.join(annotation_folder,im.split(".")[0]+'.txt')
                             #print(f'annotation_filepath = {annotation_filepath}')
                             polygons=parse_polygons_from_annotation_file(annotation_filepath)
+                            #print(polygons)
                             num_ids=[class_id for i in range(len(polygons))]
                         except FileNotFoundError:
                             #remove file from annotation 
